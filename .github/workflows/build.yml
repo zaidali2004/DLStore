@@ -3,28 +3,31 @@ name: Build DLStore IPA
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:   # يسمح بتشغيل يدوي من GitHub
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
 
 jobs:
   build:
     name: Build IPA
-    runs-on: macos-latest   # ✅ Mac مجاني في السحابة
+    runs-on: macos-15
 
     steps:
-      # 1. تحميل الكود
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. تثبيت XcodeGen
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
       - name: Install XcodeGen
         run: brew install xcodegen
 
-      # 3. توليد مشروع Xcode
       - name: Generate Xcode project
         run: xcodegen generate
 
-      # 4. بناء التطبيق (بدون توقيع)
-      - name: Build app (unsigned)
+      - name: Build app
         run: |
           xcodebuild \
             -project DLStore.xcodeproj \
@@ -36,46 +39,19 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
-            clean build \
-            CONFIGURATION_BUILD_DIR=./build/Release-iphoneos
+            CONFIGURATION_BUILD_DIR=./build/Release-iphoneos \
+            build
 
-      # 5. تحزيم الـ IPA
       - name: Package IPA
         run: |
-          mkdir -p ./ipa/Payload
-          cp -r ./build/Release-iphoneos/DLStore.app ./ipa/Payload/
-          cd ipa
-          zip -r ../DLStore-unsigned.ipa Payload
-          cd ..
-          echo "✅ IPA created!"
+          mkdir -p ./Payload
+          cp -r ./build/Release-iphoneos/DLStore.app ./Payload/
+          zip -r DLStore-unsigned.ipa Payload
           ls -lh DLStore-unsigned.ipa
 
-      # 6. رفع الـ IPA كـ artifact
-      - name: Upload IPA artifact
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: DLStore-IPA
           path: DLStore-unsigned.ipa
           retention-days: 30
-
-      # 7. إنشاء Release تلقائي عند push للـ main
-      - name: Create GitHub Release
-        if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v1.0-${{ github.run_number }}
-          name: DLStore v1.0 (Build ${{ github.run_number }})
-          body: |
-            ## DLStore iOS App
-            
-            ### التثبيت:
-            1. حمّل `DLStore-unsigned.ipa`
-            2. ثبّته عبر **AltStore** أو **Sideloadly**
-            
-            ### ملاحظة:
-            هذا IPA غير موقّع — يحتاج إعادة توقيع عبر AltStore
-          files: DLStore-unsigned.ipa
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
