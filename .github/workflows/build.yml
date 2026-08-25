@@ -5,21 +5,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   build:
     name: Build IPA
-    runs-on: macos-15
+    runs-on: macos-14
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.app
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -29,18 +22,7 @@ jobs:
 
       - name: Build app
         run: |
-          xcodebuild \
-            -project DLStore.xcodeproj \
-            -scheme DLStore \
-            -configuration Release \
-            -sdk iphoneos \
-            -destination 'generic/platform=iOS' \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGN_IDENTITY="" \
-            DEVELOPMENT_TEAM="" \
-            CONFIGURATION_BUILD_DIR=./build/Release-iphoneos \
-            build
+          xcodebuild -project DLStore.xcodeproj -scheme DLStore -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM="" CONFIGURATION_BUILD_DIR=./build/Release-iphoneos build
 
       - name: Package IPA
         run: |
