@@ -1,0 +1,49 @@
+name: DLStore
+targets:
+  DLStore:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: DLStore
+        excludes:
+          - "Info.plist"
+    info:
+      path: DLStore/Info.plist
+      properties:
+        CFBundleDisplayName: DLStore
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        LSRequiresIPhoneOS: true
+        MinimumOSVersion: "16.0"
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+          NSAllowsLocalNetworking: true
+        UIBackgroundModes:
+          - fetch
+          - processing
+          - audio
+        NSLocalNetworkUsageDescription: "يحتاج التطبيق للوصول إلى الشبكة المحلية لتثبيت التطبيقات"
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+        UILaunchStoryboardName: LaunchScreen
+        UIRequiredDeviceCapabilities:
+          - arm64
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dlstore.app
+        SWIFT_VERSION: "5.9"
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+        ENABLE_BITCODE: "NO"
+        DEBUG_INFORMATION_FORMAT: dwarf
+        SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+    scheme:
+      testTargets: []
