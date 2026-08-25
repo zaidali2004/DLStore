@@ -1,39 +1,11 @@
-name: Build DLStore IPA
+name: Test Runner
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build IPA
-    runs-on: macos-14
-
+  test:
+    runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install XcodeGen
-        run: brew install xcodegen
-
-      - name: Generate Xcode project
-        run: xcodegen generate
-
-      - name: Build app
-        run: |
-          xcodebuild -project DLStore.xcodeproj -scheme DLStore -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM="" CONFIGURATION_BUILD_DIR=./build/Release-iphoneos build
-
-      - name: Package IPA
-        run: |
-          mkdir -p ./Payload
-          cp -r ./build/Release-iphoneos/DLStore.app ./Payload/
-          zip -r DLStore-unsigned.ipa Payload
-          ls -lh DLStore-unsigned.ipa
-
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: DLStore-IPA
-          path: DLStore-unsigned.ipa
-          retention-days: 30
+      - name: Hello
+        run: echo Hello && sw_vers && xcodebuild -version
